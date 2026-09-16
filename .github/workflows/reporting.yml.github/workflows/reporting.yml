@@ -1,5 +1,5 @@
 name: RSS Reporting
-# refresh
+# force reload
 
 on:
   schedule:
