@@ -1,1 +1,38 @@
+name: RSS Reporting
 
+on:
+  schedule:
+    - cron: "0 */2 * * *"
+  workflow_dispatch:
+
+jobs:
+  reporting:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install feedparser
+          pip install pandas
+
+      - name: Run RSS collector with categories
+        run: python rss_multi_sites_categories.py
+
+      - name: Commit updated CSV
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+
+          git add output/rss_history.csv || echo "CSV non trouvé"
+          git commit -m "Update RSS CSV (reporting)" || echo "Aucun changement"
+          git push || echo "Push ignoré"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
