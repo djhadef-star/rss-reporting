@@ -1,10 +1,13 @@
 name: RSS Reporting
-# force reload
 
 on:
   schedule:
     - cron: "0 */2 * * *"
   workflow_dispatch:
+
+# Autorise GitHub Actions à modifier le dépôt (nécessaire pour git push)
+permissions:
+  contents: write
 
 jobs:
   reporting:
@@ -12,28 +15,28 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
       - name: Install dependencies
         run: |
-          pip install feedparser
-          pip install pandas
+          python -m pip install --upgrade pip
+          pip install feedparser pandas
 
       - name: Run RSS collector with categories
         run: python rss_multi_sites_categories.py
 
       - name: Commit updated CSV
         run: |
-          git config user.name "github-actions"
-          git config user.email "actions@github.com"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          git add output/rss_history.csv || echo "CSV non trouvé"
-          git commit -m "Update RSS CSV (reporting)" || echo "Aucun changement"
-          git push || echo "Push ignoré"
+          git add output/rss_history.csv
+          git commit -m "Update RSS CSV (reporting)" || echo "Aucun changement à commiter"
+          git push
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
