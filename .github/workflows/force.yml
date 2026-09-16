@@ -1,1 +1,10 @@
+name: Force Index
 
+on:
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Force workflow indexing"
